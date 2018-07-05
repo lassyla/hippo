@@ -1,8 +1,9 @@
 body {
   text-align: center;
-  background: linear-gradient(lightblue, peachpuff);
+  background: linear-gradient(cornflowerblue, dodgerblue);
   cursor: default; 
   font-family: sans-serif; 
+  user-select: none; 
 }
 svg{
   text-align: center;
@@ -15,7 +16,6 @@ svg{
 }
 g{
   stroke: white;
-  transition: .5s;
 }
 #distance{
   fill: white;
@@ -40,7 +40,6 @@ button{
   background: none; 
   border: 2px solid white; 
   color: white; 
-  transition: .5s;
   min-width: 10em; 
 }
 
@@ -49,8 +48,7 @@ button:hover{
 }
 button.active{
   background: rgba(255, 255, 255, .5); 
-  color: lightblue;
-  transition: .5s;
+  color: darkblue;
 }
 #container{
   padding: 2em; 
@@ -63,19 +61,12 @@ button.active{
   display: inline-block; 
 
 }
-#desc{
-  display: inline-block; 
-  width: 20%;
-  height: 50%;
-  vertical-align: top; 
-  color: white;
-  border: 2px solid white; 
-}
+
 #chart{
   display: inline-block;
-  width: 20%;
   height: 60%;
-  vertical-align: top;   
+  width: 180px; 
+  vertical-align: top;
 }
 
 h1{
@@ -98,7 +89,7 @@ h1{
   fill: green
 }
 #bar2{
-  fill: blue
+  fill: rgba(255, 255, 255, .7)
 }
 #bar3{
   fill: rgba(255, 255, 255, .7)

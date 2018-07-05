@@ -1,7 +1,3 @@
-//BUGS: 
-//-path not updating correctly
-//-on randomize, shows random dotted line 
-//-my rectangle is not showing up. why(line 95)
 
 var width = 500;
 var height = 500;
@@ -18,30 +14,26 @@ var visitedNodes = [0];
 var moving;
 var distanceTraveled = 0;
 var randomPath = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-var bfPath = [0, 1, 3, 2, 4, 5, 6, 7, 8, 9, 10];
+var sePath = [0, 1, 3, 2, 4, 5, 6, 7, 8, 9, 10];
 var nnPath = [0, 1, 2, 3, 4, 6, 5, 9, 8, 7, 10];
 var buttonOn = [false, false, false]; 
 var randomDist = 0;
 var nnDist = 0; 
-var bfDist = 0; 
+var seDist = 0; 
 
 getRandomPoints();
 drawStuff();
 calculatePaths(); 
 
 
-function randomColor(){
-  return "hsl(" + Math.random() * 360 + ", 100%, 50%)";
-}
-
 function getDist(node1, node2) {
   return Math.round(Math.sqrt(Math.pow(points[node1][0]-points[node2][0], 2) + Math.pow(points[node1][1]-points[node2][1], 2)))
 }
 
 function getRandomPoints() {
-  points = [[padding, height + padding, 0, randomColor()]];
+  points = [[padding, height + padding, 0, "white"]];
   for(var i = 1; i < numPoints; i++){
-    points.push([Math.random()*height + padding, Math.random()*width + padding, i, randomColor()]);
+    points.push([Math.random()*height + padding, Math.random()*width + padding, i, "white"]);
   }
   edgeMatrix = [];
   for(var i = 0; i < numPoints; i++){
@@ -51,6 +43,7 @@ function getRandomPoints() {
       edgeMatrix[i][j] = dist;
       edgeMatrix[j][i] = dist;
     }
+    edgeMatrix[i][i] = 100000
   }
 }
 
@@ -96,7 +89,7 @@ function drawStuff(){
     .append("svg")
     .attr("height", "height")
     .selectAll("rect")
-    .data([0, 0, 0, 0])
+    .data([0, 0, 0])
     .enter()
     .append("rect")
     .attr("class", "bar")
@@ -118,6 +111,7 @@ function drawStuff(){
 }
 
 function randomize() {
+  if(moving) return; 
   moving = true;
   d3.select("#dashedlines").selectAll("line")
   .transition()
@@ -131,13 +125,19 @@ function randomize() {
 
   getRandomPoints();
   visitedNodes = [];
-  randomDist = movePath(randomPath, 0)
-  randomDist = movePath(nnPath, 1)
-  randomDist = movePath(bfPath, 2)
-
+//  buttonOn = [true, true, true]
+//  toggleButton(0); 
+//  toggleButton(1); 
+//  toggleButton(2)
+  d3.selectAll("line").remove();
+  calculatePaths();
+  randomDist = createPath(randomPath, 0)
+  randomDist = createPath(nnPath, 1)
+  randomDist = createPath(sePath, 2)
   travelTo(0);
+
   distanceTraveled = 0;
-  d3.select("#bar3")
+  d3.select("#bar2")
     .transition()
     .duration(1000)
     .attr("height", distanceTraveled / 10)
@@ -161,17 +161,28 @@ function travelTo(index, node) {
      || (index == 0 && visitedNodes.length == randomPath.length ) 
      || (index == 0 && visitedNodes.length == 0)){
     moving = true;
-    var dist = getDist(index, currentNode);
-    var line = d3.select("g").append("line")
-      .attr("x1", points[currentNode][0])
-      .attr("y1", points[currentNode][1])
-      .attr("x2", points[currentNode][0])
-      .attr("y2", points[currentNode][1])
-      .attr("class", "dashedPath")
+    var dist = edgeMatrix[index][currentNode];
+    
+      if(index != 0 || visitedNodes.length == randomPath.length) {
+      var line = d3.select("g").append("line")
+        .attr("x1", points[currentNode][0])
+        .attr("y1", points[currentNode][1])
+        .attr("x2", points[currentNode][0])
+        .attr("y2", points[currentNode][1])
+        .attr("class", "dashedPath")
+      line.transition()
+        .ease("linear")
+        .duration( dist * 10 / speed)
+        .attr("x2", points[index][0])
+        .attr("y2", points[index][1])
+      if(visitedNodes.length == randomPath.length + 1){
+        console.log("gjkdfgkdfj") //indication that path is finished
+      }
+    }
     visitedNodes.push(index);
     distanceTraveled += dist;
     currentNode = index;
-    d3.select("#bar3")
+    d3.select("#bar2")
       .transition()
       .ease("linear")
       .duration(500)
@@ -189,20 +200,11 @@ function travelTo(index, node) {
         d3.select("text").text(distanceTraveled);
       });
 
-    line.transition()
-      .ease("linear")
-      .duration( dist * 10 / speed)
-      .attr("x2", points[index][0])
-      .attr("y2", points[index][1])
-    if(visitedNodes.length == randomPath.length + 1){
-      console.log("gjkdfgkdfj") //indication that path is finished
-    }
   }
 }
 
 function reset(){
   if(!moving){
-    console.log("reset");
     d3.selectAll("circle").transition().duration(500).attr("r", 10);
     visitedNodes = [];
     travelTo(0);
@@ -217,6 +219,14 @@ function reset(){
         distanceTraveled = 0;
       })
     }
+    distanceTraveled = 0; 
+    d3.select("#bar2")
+    .transition()
+    .ease("linear")
+    .duration(500)
+    .attr("height", distanceTraveled / 10)
+    .attr("y", height - distanceTraveled / 10)
+
 }
 
 
@@ -229,7 +239,7 @@ function createPath(path, pathNum){
       .attr("y1", points[path[i]][1])
       .attr("x2", points[path[(i + 1) % path.length]][0])
       .attr("y2", points[path[(i + 1) % path.length]][1])
-    pathDist += getDist(path[i], path[(i + 1)% path.length]);
+    pathDist += edgeMatrix[path[i]][path[(i + 1)% path.length]];
   }
   d3.select("#bar" + pathNum)
     .transition()
@@ -237,54 +247,65 @@ function createPath(path, pathNum){
     .attr("height", pathDist / 10)
     .attr("y", height - pathDist / 10)
 
-  console.log(pathDist); 
   return pathDist;
-}
-
-function movePath(path, pathNum){
-
-  pathDist = 0;
-  var i = 0; 
-  d3.select("#lines" + pathNum).selectAll("line").data(path)
-    .transition()
-    .duration(1000)
-    .attr("x1", (d, i)=>{console.log(path); return points[path[i]][0]})
-    .attr("y1", (d, i)=>points[path[i]][1])
-    .attr("x2", (d, i)=>points[path[(i + 1) % path.length]][0])
-    .attr("y2", (d, i)=>points[path[(i + 1) % path.length]][1])
-    .each((d, i)=>pathDist += getDist(path[i], path[(i + 1)% path.length]))
-
-  console.log(pathDist); 
- d3.select("#bar" + pathNum)
-  .transition()
-  .duration(1000)
-  .attr("height", pathDist / 10)
-  .attr("y", height - pathDist / 10)
-
-  return(pathDist);
-
 }
 
 function calculatePaths() {
   //calculating random 
-  for(var i = 0; i < 9; i ++){
+  for(var i = 0; i < numPoints; i ++){
     var b = randomPath[i];
     var x = Math.floor(Math.random() * (i+1));
     randomPath[i] = randomPath[x];
     randomPath[x] = b;
   }
   //calculating NN
+  nnPath = [0]
+  current = 0
+  for(var i = 1; i < numPoints; i ++){
+    nearest = current;
+    for(var j = 0; j < numPoints; j++){
+      if(!nnPath.includes(j) && edgeMatrix[current][nearest] > edgeMatrix[current][j])
+        nearest = j
+    }
+    nnPath.push(nearest)
+    current = nearest
+  }
   
-  //calculating BF
+//  sePath = [0]
+  
+  
+  
   
   //adding these paths
   randomDist = createPath(randomPath, 0)
   nnDist = createPath(nnPath, 1)
-  bfDist = createPath(bfPath, 2)
+//  seDist = createPath(sePath, 2)
 
-  //altering chart
 
 }
+
+//function seRecursive(path, unvisited){
+//  console.log(path + ":" + unvisited)
+//  if(unvisited.length == 0){
+//    var pathLength = 0; 
+//    for(var i = 0; i < path.length - 1; i++)
+//      pathLength += edgeMatrix[i][(i+1) % path.length]
+//    console.log(pathLength)
+//    return [path, pathLength];
+//  }
+//  var minPath = 100000; 
+//  var returnPath;
+//  for(var i = 0; i < unvisited.length; i++)
+//  {
+//    var result = seRecursive(path.concat([unvisited[i]]), unvisited.slice(0, i).concat(unvisited.slice(i + 1, unvisited.length)))
+//    if(result[1] < minPath){
+//      minPath = result[1];
+//      returnPath = result[0];
+//    }
+//  }
+//  return [returnPath, minPath];
+//  
+//}
 
 function toggleButton(i){
   if(buttonOn[i]){
