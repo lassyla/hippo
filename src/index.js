@@ -8,7 +8,7 @@ var edgeMatrix;
 var points;
 var hippo;
 var currentNode = 0;
-var imgRadius = 20;
+var imgRadius = 40;
 var speed = 5;
 var visitedNodes = [0];
 var moving;
@@ -100,11 +100,13 @@ function drawStuff(){
     .attr("id", (d, i)=>"bar" + i)
     
   hippo = svg
-    .append("svg:image")
-    .attr("xlink:href", "square.png")
+    .append("g")
+
+  hippo.append("svg:image")
+    .attr("id", "pic")
+//    .attr("xlink:href", "src/hippo.png") *******
     .attr("width", imgRadius * 2)
     .attr("height", imgRadius * 2)
-    .attr("opacity", .5)
     .attr("x", padding - imgRadius)
     .attr("y", height + padding - imgRadius);
   
@@ -189,11 +191,28 @@ function travelTo(index, node) {
       .attr("height", distanceTraveled / 10)
       .attr("y", height - distanceTraveled / 10)
 
+    var xPos = hippo.attr("x"); 
+    var yPos = hippo.attr("y");
+    var xDist = points[index][0] - xPos; 
+    var yDist = points[index][1] - yPos; 
+
+    var angle = Math.atan2(yDist, xDist) * 57.2958 ;
+
+
+    xPos = xPos - imgRadius;
+    yPos = yPos - imgRadius;
+//    hippo.select("#pic").attr("transform", ()=> "rotate(" + angle +  ")")
+    
+
+    var sin = Math.sin(angle)
+    var cos = Math.cos(angle) 
+    var newXPos = xDist * cos - yDist * sin;
+    var newYPos = xDist * sin + yDist * cos;
     hippo.transition()
       .ease("linear")
       .duration( dist * 10 / speed)
-      .attr("x", points[index][0] - imgRadius)
-      .attr("y", points[index][1] - imgRadius)
+      .attr("x", points[index][0] )
+      .attr("y", points[index][1] )
       .each("end", function(){
         moving = false;
         d3.select(node).transition().attr("r", 4);
@@ -283,29 +302,6 @@ function calculatePaths() {
 
 
 }
-
-//function seRecursive(path, unvisited){
-//  console.log(path + ":" + unvisited)
-//  if(unvisited.length == 0){
-//    var pathLength = 0; 
-//    for(var i = 0; i < path.length - 1; i++)
-//      pathLength += edgeMatrix[i][(i+1) % path.length]
-//    console.log(pathLength)
-//    return [path, pathLength];
-//  }
-//  var minPath = 100000; 
-//  var returnPath;
-//  for(var i = 0; i < unvisited.length; i++)
-//  {
-//    var result = seRecursive(path.concat([unvisited[i]]), unvisited.slice(0, i).concat(unvisited.slice(i + 1, unvisited.length)))
-//    if(result[1] < minPath){
-//      minPath = result[1];
-//      returnPath = result[0];
-//    }
-//  }
-//  return [returnPath, minPath];
-//  
-//}
 
 function toggleButton(i){
   if(buttonOn[i]){

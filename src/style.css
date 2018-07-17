@@ -1,6 +1,6 @@
 body {
   text-align: center;
-  background: linear-gradient(cornflowerblue, dodgerblue);
+  background: linear-gradient(#988BE3, #FFAA95);
   cursor: default; 
   font-family: sans-serif; 
   user-select: none; 
@@ -48,7 +48,8 @@ button:hover{
 }
 button.active{
   background: rgba(255, 255, 255, .5); 
-  color: darkblue;
+  color: #8BA0FF;
+  border-color: #8BA0FF;
 }
 #container{
   padding: 2em; 
@@ -73,20 +74,20 @@ h1{
   color: white; 
 }
 #lines0{
-  stroke: red;
+  stroke: #FF7070;
 }
 #lines1{
-  stroke: green;
+  stroke: #F9F871;
 }
 #lines2{
   stroke: blue;
 }
 #bar0{
-  fill: red
+  fill: #FF7070;
 }
 
 #bar1{
-  fill: green
+  fill: #F9F871; 
 }
 #bar2{
   fill: rgba(255, 255, 255, .7)
