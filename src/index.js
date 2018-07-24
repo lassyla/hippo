@@ -105,8 +105,10 @@ function drawStuff(){
   hippo.append("svg:image")
     .attr("id", "pic")
 //    .attr("xlink:href", "src/hippo.png") *******
-    .attr("width", imgRadius * 2)
-    .attr("height", imgRadius * 2)
+//    .attr("width", imgRadius * 2)
+//    .attr("height", imgRadius * 2)
+    .attr("width", 1)
+    .attr("height", 1)
     .attr("x", padding - imgRadius)
     .attr("y", height + padding - imgRadius);
   
