@@ -128,7 +128,7 @@ function randomize() {
   })
 
   getRandomPoints();
-  visitedNodes = [0];
+  visitedNodes = [];
 //  buttonOn = [true, true, true]
 //  toggleButton(0); 
 //  toggleButton(1); 
@@ -227,7 +227,7 @@ function travelTo(index, node) {
 function reset(){
   if(!moving){
     d3.selectAll("circle").transition().duration(500).attr("r", 10);
-    visitedNodes = [0];
+    visitedNodes = [];
     travelTo(0);
     d3.select("#dashedlines")
       .selectAll("line")
